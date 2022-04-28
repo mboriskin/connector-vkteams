@@ -1,0 +1,27 @@
+logging:
+  level: debug
+  timestamp: true
+
+welcome-message: false
+
+# Web server
+web:
+  host: '0.0.0.0'
+  port: 8080
+
+## Parsers
+parsers: []
+
+## Connector modules
+connectors:
+  vkteams:
+    token: $CODE_INSIDE_DEMO_BOT_TOKEN
+    bot-name: "code_inside_demo_bot"
+    repo: https://github.com/mboriskin/connector-vkteams
+
+## Skill modules
+skills:
+  reminders:
+    path: /opt/opsdroid/skills/reminder
+    no-cache: true
+    app-name: opsdroid-demo
