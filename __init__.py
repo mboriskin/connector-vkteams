@@ -154,6 +154,9 @@ class ConnectorVKTeams(Connector):
         try:
             for event in response["events"]:
                 _LOGGER.debug(event)
+                _LOGGER.debug("Event type: " + event.get("type", None))
+                if "text" in event:
+                    _LOGGER.debug("There is text in event")
 
                 if event.get("type", None) == "editedMessage":
 
