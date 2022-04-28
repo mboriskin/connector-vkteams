@@ -154,15 +154,12 @@ class ConnectorVKTeams(Connector):
         try:
             for event in response["events"]:
                 _LOGGER.debug(event)
-                _LOGGER.debug("Event type: " + event.get("type", None))
-                if "text" in event:
-                    _LOGGER.debug("There is text in event")
 
                 if event.get("type", None) == "editedMessage":
-
                     self.latest_update = event["eventId"]
                     _LOGGER.debug("editedMessage message - Ignoring message.")
-                elif event.get("type", None) == "newMessage" and "text" in event:
+
+                elif event.get("type", None) == "newMessage" and "text" in event.get("payload", None):
                     user = self.get_user(event)
                     message = Message(
                         text=event["text"],
@@ -180,9 +177,11 @@ class ConnectorVKTeams(Connector):
                         )
                         await self.send(message)
                     self.latest_update = event["update_id"]
+
                 elif "eventId" in event:
                     self.latest_update = event["eventId"]
                     _LOGGER.debug("Ignoring event.")
+
                 else:
                     _LOGGER.error("Unable to parse the event.")
         except:
