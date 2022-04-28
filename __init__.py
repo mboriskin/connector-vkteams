@@ -201,6 +201,7 @@ class ConnectorVKTeams(Connector):
         data = {
             'token': self.token,
             'pollTime': 30,
+            'lastEventId': 1
         }
         if self.latest_update is not None:
             data["lastEventId"] = self.latest_update
