@@ -1,0 +1,3 @@
+aiohttp~=3.8.1
+voluptuous~=0.13.1
+opsdroid~=0.26.0

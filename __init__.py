@@ -1,21 +1,11 @@
-"""A connector for VK Teams."""
-import json
+"""A connector for VK Teams"""
 import logging
 import aiohttp
 import asyncio
 from voluptuous import Required
 
-from opsdroid.connector import Connector, register_event
-from opsdroid.events import (
-    EditedMessage,
-    File,
-    Image,
-    JoinGroup,
-    LeaveGroup,
-    Message,
-    PinMessage,
-    Reply,
-)
+from opsdroid.connector import Connector
+from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
@@ -26,16 +16,14 @@ CONFIG_SCHEMA = {
 }
 
 
-
 class ConnectorVKTeams(Connector):
-    """A connector for the chat service VK Teams."""
+    """A connector for VK Teams"""
 
     def __init__(self, config, opsdroid=None):
-        """Create the connector.
-        Args:
-            config (dict): configuration settings from the
-                file configuration.yaml.
-            opsdroid (OpsDroid): An instance of opsdroid.core.
+        """
+        Create the connector.
+        :param config (dict): configuration settings from the file configuration.yaml.
+        :param opsdroid (OpsDroid): An instance of opsdroid.core.
         """
         _LOGGER.debug("Loaded VK Teams Connector")
         super().__init__(config, opsdroid=opsdroid)
@@ -53,20 +41,18 @@ class ConnectorVKTeams(Connector):
         try:
             self.token = config["token"]
         except (KeyError, AttributeError):
-            _LOGGER.error("Unable to login: Access token is missing. Telegram connector will be unavailable.")
+            _LOGGER.error("Unable to login: Access token is missing. VKT connector will be unavailable.")
 
     @staticmethod
     def get_user(response):
-        """Get user from response.
-
+        """
+        Get user from response.
         The API response is different depending on how
         the bot is set up and where the message is coming
         from. This method was created to keep if/else
         statements to a minium on  _parse_message.
 
-        Args:
-            response (dict): Response returned by aiohttp.ClientSession.
-
+        :param response (dict): Response returned by aiohttp.ClientSession.
         """
         user = None
         user_id = None
@@ -81,14 +67,14 @@ class ConnectorVKTeams(Connector):
         return user
 
     def handle_user_permission(self, response, user):
-        """Handle user permissions.
-
+        """
+        Handle user permissions.
         This will check if the user that tried to talk with
         the bot is allowed to do so. It will also work with
         userid to improve security.
 
+        :param response (dict): Response returned by aiohttp.ClientSession.
         """
-
         if (
             not self.whitelisted_users
             or user in self.whitelisted_users
@@ -99,24 +85,21 @@ class ConnectorVKTeams(Connector):
 
     @staticmethod
     def build_url(method):
-        """Build the url to connect to the API.
-
-        Args:
-            method (string): API call end point.
-
-        Return:
-            String that represents the full API url.
-
+        """
+        Build the url to connect to the API.
+        :param method (string): API call end point.
+        :return: String that represents the full API url.
         """
         return f"https://api.internal.myteam.mail.ru/bot/v1/{method}"
 
     async def connect(self):
-        """Connect to VK Teams.
-        Simply checks if provided token is valid.
-
         """
+        Connect to VK Teams.
+        Simply checks if provided token is valid.
+        """
+        _LOGGER.debug(
+            "Connecting to VK Teams.")
 
-        _LOGGER.debug("Connecting to VK Teams.")
         self.session = aiohttp.ClientSession()
         params = {
             'token': self.token
@@ -132,22 +115,19 @@ class ConnectorVKTeams(Connector):
             _LOGGER.debug(f"Connected to VK Teams as {json['nick']}.")
 
     async def _parse_message(self, response):
-        """Handle logic to parse a received message.
-
+        """
+        Handle logic to parse a received message.
         Since everyone can send a private message to any user/bot
         in VK Teams, this method allows to set a list of whitelisted
         users that can interact with the bot. If any other user tries
         to interact with the bot the command is not parsed and instead
         the bot will inform that user that he is not allowed to talk
         with the bot.
-
         We also set self.latest_update to +1 in order to get the next
         available message (or an empty {} if no message has been received
         yet) with the method self._get_messages().
 
-        Args:
-            response (dict): Response returned by aiohttp.ClientSession.
-
+        :param response (dict): Response returned by aiohttp.ClientSession.
         """
 
         _LOGGER.debug(response)
@@ -188,17 +168,15 @@ class ConnectorVKTeams(Connector):
             pass
 
     async def _get_messages(self):
-        """Connect to the VK Teams API.
-
+        """
+        Connect to the VK Teams API.
         Uses an aiohttp ClientSession to connect to VK Teams API
         and get the latest messages from the chat service.
-
         The data["lastEventId"] is used to consume every new message, the API
         returns an  int - "update_id" value. In order to get the next
         message this value needs to be increased by 1 the next time
         the API is called. If no new messages exists the API will just
         return an empty {}.
-
         """
         data = {
             'token': self.token,
@@ -220,38 +198,33 @@ class ConnectorVKTeams(Connector):
             await self._parse_message(json)
 
     async def get_messages_loop(self):
-        """Listen for and parse new messages.
-
+        """
+        Listen for and parse new messages.
         The bot will always listen to all events from the server
-
         The method will sleep asynchronously at the end of
         every loop. The time can either be specified in the
         config.yaml with the param update-interval - this
         defaults to 1 second.
-
         """
         while self.listening:
             await self._get_messages()
 
     async def listen(self):
-        """Listen method of the connector.
-
+        """
+        Listen method of the connector.
         Every connector has to implement the listen method. When an
         infinite loop is running, it becomes hard to cancel this task.
         So we are creating a task and set it on a variable, so we can
         cancel the task.
-
         """
         message_getter = self.loop.create_task(await self.get_messages_loop())
         await self._closing.wait()
         message_getter.cancel()
 
     async def send_message(self, message):
-        """Respond with a message.
-
-        Args:
-            message (object): An instance of Message.
-
+        """
+        Respond with a message.
+        :param message (object): An instance of Message.
         """
         _LOGGER.debug(f"Responding with: '{message.text}' at target: '{message.target}'")
 
@@ -266,11 +239,10 @@ class ConnectorVKTeams(Connector):
             _LOGGER.error("Unable to respond.")
 
     async def disconnect(self):
-        """Disconnect from Telegram.
-
+        """
+        Disconnect from VK Teams.
         Stops the infinite loop found in self._listen(), closes
         aiohttp session.
-
         """
         self.listening = False
         self._closing.set()
