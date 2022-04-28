@@ -134,15 +134,15 @@ class ConnectorVKTeams(Connector):
         try:
             for event in response["events"]:
                 _LOGGER.debug(event)
-
+                payload = event.get("payload", {})
                 if event.get("type", None) == "editedMessage":
                     self.latest_update = event["eventId"]
                     _LOGGER.debug("editedMessage message - Ignoring message.")
 
-                elif event.get("type", None) == "newMessage" and "text" in event.get("payload", None):
+                elif event.get("type", None) == "newMessage" and "text" in payload:
                     user = self.get_user(event)
                     message = Message(
-                        text=event["text"],
+                        text=payload["text"],
                         user=user,
                         user_id=user,
                         target=user,
@@ -156,7 +156,7 @@ class ConnectorVKTeams(Connector):
                             "Sorry, you're not allowed " "to speak with this bot."
                         )
                         await self.send(message)
-                    self.latest_update = event["update_id"]
+                    self.latest_update = event["eventId"]
 
                 elif "eventId" in event:
                     self.latest_update = event["eventId"]
@@ -165,7 +165,7 @@ class ConnectorVKTeams(Connector):
                 else:
                     _LOGGER.error("Unable to parse the event.")
         except:
-            pass
+            raise
 
     async def _get_messages(self):
         """
@@ -221,6 +221,7 @@ class ConnectorVKTeams(Connector):
         await self._closing.wait()
         message_getter.cancel()
 
+    @register_event(Message)
     async def send_message(self, message):
         """
         Respond with a message.
@@ -247,3 +248,5 @@ class ConnectorVKTeams(Connector):
         self.listening = False
         self._closing.set()
         await self.session.close()
+
+
