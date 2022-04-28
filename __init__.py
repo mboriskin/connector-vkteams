@@ -246,6 +246,7 @@ class ConnectorVKTeams(Connector):
         await self._closing.wait()
         message_getter.cancel()
 
+    @register_event(Message)
     async def send_message(self, message):
         """Respond with a message.
 
