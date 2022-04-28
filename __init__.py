@@ -185,7 +185,7 @@ class ConnectorVKTeams(Connector):
                 else:
                     _LOGGER.error("Unable to parse the event.")
         except:
-            pass
+            raise
 
     async def _get_messages(self):
         """Connect to the VK Teams API.
@@ -275,3 +275,5 @@ class ConnectorVKTeams(Connector):
         self.listening = False
         self._closing.set()
         await self.session.close()
+
+
