@@ -149,37 +149,41 @@ class ConnectorVKTeams(Connector):
             response (dict): Response returned by aiohttp.ClientSession.
 
         """
-        for event in response["events"]:
-            _LOGGER.debug(event)
 
-            if event.get("type", None) == "editedMessage":
+        _LOGGER.debug(response)
+        try:
+            for event in response["events"]:
+                _LOGGER.debug(event)
 
-                self.latest_update = event["eventId"]
-                _LOGGER.debug("editedMessage message - Ignoring message.")
-            elif event.get("type", None) == "newMessage" and "text" in event:
-                user = self.get_user(event)
-                message = Message(
-                    text=event["text"],
-                    user=user,
-                    user_id=user,
-                    target=user,
-                    connector=self,
-                )
+                if event.get("type", None) == "editedMessage":
 
-                if self.handle_user_permission(event, user):
-                    await self.opsdroid.parse(message)
-                else:
-                    message.text = (
-                        "Sorry, you're not allowed " "to speak with this bot."
+                    self.latest_update = event["eventId"]
+                    _LOGGER.debug("editedMessage message - Ignoring message.")
+                elif event.get("type", None) == "newMessage" and "text" in event:
+                    user = self.get_user(event)
+                    message = Message(
+                        text=event["text"],
+                        user=user,
+                        user_id=user,
+                        target=user,
+                        connector=self,
                     )
-                    await self.send(message)
-                self.latest_update = event["update_id"]
-            elif "eventId" in event:
-                self.latest_update = event["eventId"]
-                _LOGGER.debug("Ignoring event.")
-            else:
-                _LOGGER.error("Unable to parse the event.")
 
+                    if self.handle_user_permission(event, user):
+                        await self.opsdroid.parse(message)
+                    else:
+                        message.text = (
+                            "Sorry, you're not allowed " "to speak with this bot."
+                        )
+                        await self.send(message)
+                    self.latest_update = event["update_id"]
+                elif "eventId" in event:
+                    self.latest_update = event["eventId"]
+                    _LOGGER.debug("Ignoring event.")
+                else:
+                    _LOGGER.error("Unable to parse the event.")
+        except:
+            pass
 
     async def _get_messages(self):
         """Connect to the VK Teams API.
