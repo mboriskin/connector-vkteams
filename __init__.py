@@ -4,7 +4,7 @@ import aiohttp
 import asyncio
 from voluptuous import Required
 
-from opsdroid.connector import Connector
+from opsdroid.connector import Connector, register_event
 from opsdroid.events import Message
 
 _LOGGER = logging.getLogger(__name__)
