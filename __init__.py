@@ -31,6 +31,7 @@ class ConnectorVKTeams(Connector):
         self.opsdroid = opsdroid
         self.latest_update = None
         self.listening = True
+        self.base_url = config.get("base-url", None)
         self.default_user = config.get("default-user", None)
         self.default_target = self.default_user
         self.whitelisted_users = config.get("whitelisted-users", None)
@@ -74,14 +75,13 @@ class ConnectorVKTeams(Connector):
 
         return False
 
-    @staticmethod
-    def build_url(method):
+    def build_url(self, method):
         """
         Build the url to connect to the API.
         :param method (str): API call end point.
         :return: String that represents the full API url.
         """
-        return f"https://api.internal.myteam.mail.ru/bot/v1/{method}"
+        return f"https://{self.base_url}{method}"
 
     async def connect(self):
         """
@@ -246,3 +246,5 @@ class ConnectorVKTeams(Connector):
         self.listening = False
         self._closing.set()
         await self.session.close()
+
+

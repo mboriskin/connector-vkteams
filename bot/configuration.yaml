@@ -17,6 +17,7 @@ connectors:
   vkteams:
     token: $OPS_DROID_SAMPLE_BOT_TOKEN
     bot-name: "opsdroid_sample_bot"
+    base-url: "api.internal.myteam.mail.ru/bot/v1/"
     repo: https://github.com/mboriskin/connector-vkteams
 
 ## Skill modules
