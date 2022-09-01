@@ -31,6 +31,7 @@ class ConnectorVKTeams(Connector):
         self.opsdroid = opsdroid
         self.latest_update = None
         self.listening = True
+        self.base_url = config.get("base-url", None)
         self.default_user = config.get("default-user", None)
         self.default_target = self.default_user
         self.whitelisted_users = config.get("whitelisted-users", None)
@@ -50,19 +51,13 @@ class ConnectorVKTeams(Connector):
         The API response is different depending on how
         the bot is set up and where the message is coming
         from. This method was created to keep if/else
-        statements to a minium on  _parse_message.
-
-        :param response (dict): Response returned by aiohttp.ClientSession.
+        statements to a minium on _parse_message.
+        :param response (str): Response returned by aiohttp.ClientSession.
         """
         user = None
-        user_id = None
 
         if "chatId" in response.get("payload", {}).get("chat", None):
             user = response["payload"]["chat"]["chatId"]
-
-        # elif "first_name" in response["message"]["from"]:
-        #     user = response["message"]["from"]["first_name"]
-        # user_id = response["message"]["from"]["id"]
 
         return user
 
@@ -70,10 +65,7 @@ class ConnectorVKTeams(Connector):
         """
         Handle user permissions.
         This will check if the user that tried to talk with
-        the bot is allowed to do so. It will also work with
-        userid to improve security.
-
-        :param response (dict): Response returned by aiohttp.ClientSession.
+        the bot is allowed to do so.
         """
         if (
             not self.whitelisted_users
@@ -83,19 +75,18 @@ class ConnectorVKTeams(Connector):
 
         return False
 
-    @staticmethod
-    def build_url(method):
+    def build_url(self, method):
         """
         Build the url to connect to the API.
-        :param method (string): API call end point.
+        :param method (str): API call end point.
         :return: String that represents the full API url.
         """
-        return f"https://api.internal.myteam.mail.ru/bot/v1/{method}"
+        return f"https://{self.base_url}{method}"
 
     async def connect(self):
         """
         Connect to VK Teams.
-        Simply checks if provided token is valid.
+        Basically checks if provided token is valid.
         """
         _LOGGER.debug(
             "Connecting to VK Teams.")
@@ -107,12 +98,16 @@ class ConnectorVKTeams(Connector):
         resp = await self.session.get(url=self.build_url("self/get"), params=params)
 
         if resp.status != 200:
-            _LOGGER.error("Unable to connect.")
-            _LOGGER.error(f"VK Teams error {resp.status}, {resp.text}.")
+            _LOGGER.error(
+                "Unable to connect.")
+            _LOGGER.error(
+                f"VK Teams error {resp.status}, {resp.text}.")
         else:
             json = await resp.json()
-            _LOGGER.debug(json)
-            _LOGGER.debug(f"Connected to VK Teams as {json['nick']}.")
+            _LOGGER.debug(
+                json)
+            _LOGGER.debug(
+                f"Connected to VK Teams as {json['nick']}.")
 
     async def _parse_message(self, response):
         """
@@ -126,19 +121,20 @@ class ConnectorVKTeams(Connector):
         We also set self.latest_update to +1 in order to get the next
         available message (or an empty {} if no message has been received
         yet) with the method self._get_messages().
-
         :param response (dict): Response returned by aiohttp.ClientSession.
         """
 
-        _LOGGER.debug(response)
+        _LOGGER.debug(
+            response)
         try:
             for event in response["events"]:
-                _LOGGER.debug(event)
+                _LOGGER.debug(
+                    event)
                 payload = event.get("payload", {})
                 if event.get("type", None) == "editedMessage":
                     self.latest_update = event["eventId"]
-                    _LOGGER.debug("editedMessage message - Ignoring message.")
-
+                    _LOGGER.debug(
+                        "editedMessage message - Ignoring message.")
                 elif event.get("type", None) == "newMessage" and "text" in payload:
                     user = self.get_user(event)
                     message = Message(
@@ -148,7 +144,6 @@ class ConnectorVKTeams(Connector):
                         target=user,
                         connector=self,
                     )
-
                     if self.handle_user_permission(event, user):
                         await self.opsdroid.parse(message)
                     else:
@@ -157,13 +152,13 @@ class ConnectorVKTeams(Connector):
                         )
                         await self.send(message)
                     self.latest_update = event["eventId"]
-
                 elif "eventId" in event:
                     self.latest_update = event["eventId"]
-                    _LOGGER.debug("Ignoring event.")
-
+                    _LOGGER.debug(
+                        "Ignoring event.")
                 else:
-                    _LOGGER.error("Unable to parse the event.")
+                    _LOGGER.error(
+                        "Unable to parse the event.")
         except:
             raise
 
@@ -190,11 +185,11 @@ class ConnectorVKTeams(Connector):
         resp = await self.session.get(self.build_url("events/get"), params=data)
 
         if resp.status != 200:
-            _LOGGER.error(f"VK Teams error {resp.status}, {resp.text}.")
+            _LOGGER.error(
+                f"VK Teams error {resp.status}, {resp.text}.")
             self.listening = False
         else:
             json = await resp.json()
-
             await self._parse_message(json)
 
     async def get_messages_loop(self):
@@ -203,7 +198,7 @@ class ConnectorVKTeams(Connector):
         The bot will always listen to all events from the server
         The method will sleep asynchronously at the end of
         every loop. The time can either be specified in the
-        config.yaml with the param update-interval - this
+        configuration.yaml with the param update-interval - this
         defaults to 1 second.
         """
         while self.listening:
@@ -227,7 +222,8 @@ class ConnectorVKTeams(Connector):
         Respond with a message.
         :param message (object): An instance of Message.
         """
-        _LOGGER.debug(f"Responding with: '{message.text}' at target: '{message.target}'")
+        _LOGGER.debug(
+            f"Responding with: '{message.text}' at target: '{message.target}'")
 
         data = dict()
         data["token"] = self.token
@@ -235,9 +231,11 @@ class ConnectorVKTeams(Connector):
         data["text"] = message.text
         resp = await self.session.post(self.build_url("messages/sendText"), data=data)
         if resp.status == 200:
-            _LOGGER.debug("Successfully responded.")
+            _LOGGER.debug(
+                "Successfully responded.")
         else:
-            _LOGGER.error("Unable to respond.")
+            _LOGGER.error(
+                "Unable to respond.")
 
     async def disconnect(self):
         """

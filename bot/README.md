@@ -14,7 +14,8 @@ docker run --rm -p 8080:8080 opsdroid-demo
 
 ## Authors and acknowledgment
 
-CodeInside VK hackathon 04 2022
+@mboriskin
+@shved00f
 
 ## License
 

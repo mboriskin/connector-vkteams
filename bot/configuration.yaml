@@ -15,8 +15,9 @@ parsers: []
 ## Connector modules
 connectors:
   vkteams:
-    token: $CODE_INSIDE_DEMO_BOT_TOKEN
-    bot-name: "code_inside_demo_bot"
+    token: $OPS_DROID_SAMPLE_BOT_TOKEN
+    bot-name: "opsdroid_sample_bot"
+    base-url: "api.internal.myteam.mail.ru/bot/v1/"
     repo: https://github.com/mboriskin/connector-vkteams
 
 ## Skill modules
