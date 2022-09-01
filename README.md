@@ -13,6 +13,7 @@ connectors:
   vkteams:
     # required
     token: "some-token"  # bot token
+    base-url: "myteam.mail.ru/bot/v1/" # your organization bot-api base url
 ```
 
 ## How to start
