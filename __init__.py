@@ -56,10 +56,27 @@ class ConnectorVKTeams(Connector):
         """
         user = None
 
-        if "chatId" in response.get("payload", {}).get("chat", None):
-            user = response["payload"]["chat"]["chatId"]
+        if "chatId" in response.get("payload", {}).get("from", None):
+            user = response["payload"]["from"]["userId"]
 
         return user
+    
+    @staticmethod
+    def get_target(response):
+        """
+        Get user from response.
+        The API response is different depending on how
+        the bot is set up and where the message is coming
+        from. This method was created to keep if/else
+        statements to a minium on _parse_message.
+        :param response (str): Response returned by aiohttp.ClientSession.
+        """
+        target = None
+
+        if "chatId" in response.get("payload", {}).get("chat", None):
+            target = response["payload"]["chat"]["chatId"]
+
+        return target
 
     def handle_user_permission(self, response, user):
         """
@@ -137,11 +154,12 @@ class ConnectorVKTeams(Connector):
                         "editedMessage message - Ignoring message.")
                 elif event.get("type", None) == "newMessage" and "text" in payload:
                     user = self.get_user(event)
+                    target = self.get_target(event)
                     message = Message(
                         text=payload["text"],
                         user=user,
                         user_id=user,
-                        target=user,
+                        target=target,
                         connector=self,
                         raw_event=event
                     )
