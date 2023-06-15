@@ -143,6 +143,7 @@ class ConnectorVKTeams(Connector):
                         user_id=user,
                         target=user,
                         connector=self,
+                        raw_event=event
                     )
                     if self.handle_user_permission(event, user):
                         await self.opsdroid.parse(message)
