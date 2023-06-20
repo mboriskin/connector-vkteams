@@ -57,7 +57,7 @@ class ConnectorVKTeams(Connector):
             _LOGGER.error("Unable to login: Access token is missing. VKT connector will be unavailable.")
 
     @staticmethod
-    def get_user(response):
+    def get_user(event):
         """
         Get user from response.
         The API response is different depending on how
@@ -68,13 +68,13 @@ class ConnectorVKTeams(Connector):
         """
         user = None
 
-        if "chatId" in response.get("payload", {}).get("from", None):
-            user = response["payload"]["from"]["userId"]
+        if "userId" in event.get("payload", {}).get("from", None):
+            user = event["payload"]["from"]["userId"]
 
         return user
 
     @staticmethod
-    def get_target(response):
+    def get_target(event):
         """
         Get user from response.
         The API response is different depending on how
@@ -85,8 +85,8 @@ class ConnectorVKTeams(Connector):
         """
         target = None
 
-        if "chatId" in response.get("payload", {}).get("chat", None):
-            target = response["payload"]["chat"]["chatId"]
+        if "chatId" in event.get("payload", {}).get("chat", None):
+            target = event["payload"]["chat"]["chatId"]
 
         return target
 
@@ -159,7 +159,6 @@ class ConnectorVKTeams(Connector):
             for event in response["events"]:
                 _LOGGER.debug(
                     event)
-                payload = event.get("payload", {})
                 user = self.get_user(event)
                 target = self.get_target(event)
                 parsed_event = await self.handle_messages(
