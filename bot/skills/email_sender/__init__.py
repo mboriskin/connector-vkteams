@@ -5,6 +5,7 @@ import re
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 from opsdroid.constraints import constrain_connectors
+from opsdroid.events import Reply
 
 
 class SendEmailSkill(Skill):
@@ -45,25 +46,14 @@ class SendEmailSkill(Skill):
     @match_regex(r'send_email', matching_condition="fullmatch")
     @constrain_connectors(['vkteams'])
     async def send_email_vkteams(self, message):
-        message_for_email = ""
 
-        event_data = message.raw_event['payload']
-        data_parts = event_data.get('parts', [])
-        if not data_parts:
+        if not isinstance(message, Reply):
             await message.respond("Сделайте реплай на сообщение, "
                                   "которое хотите переслать на email")
             return
 
-        payload_message = data_parts[0]['payload']['message']
-        part_msg_from = payload_message['from']
-        if "nick" in part_msg_from:
-            replied_message_author = part_msg_from['nick']
-        else:
-            replied_message_author = f"{part_msg_from['firstName']} {part_msg_from['lastName']} " \
-                                     f"({part_msg_from['userId']})"
-
-        message_for_email += f"{replied_message_author}:\n\n" \
-                             f"{payload_message['text']}\n\n"
+        message_for_email = f"{message.linked_event.user_id}:\n\n" \
+                             f"{message.linked_event.text}\n\n"
 
         if message_for_email:
             receiver = "your.real.email@mail.ru"
