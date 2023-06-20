@@ -68,8 +68,11 @@ class ConnectorVKTeams(Connector):
         """
         user = None
 
-        if "userId" in event.get("payload", {}).get("from", None):
-            user = event["payload"]["from"]["userId"]
+        try:
+            if "userId" in event.get("payload", {}).get("from", None):
+                user = event["payload"]["from"]["userId"]
+        except TypeError:
+            pass
 
         return user
 
@@ -85,8 +88,11 @@ class ConnectorVKTeams(Connector):
         """
         target = None
 
-        if "chatId" in event.get("payload", {}).get("chat", None):
-            target = event["payload"]["chat"]["chatId"]
+        try:
+            if "chatId" in event.get("payload", {}).get("chat", None):
+                target = event["payload"]["chat"]["chatId"]
+        except TypeError:
+            pass
 
         return target
 
