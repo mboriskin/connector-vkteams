@@ -317,7 +317,6 @@ class ConnectorVKTeams(Connector):
                 raw_event=raw_event,
             )
 
-
         message_parts = raw_event.get("payload", {}).get("parts", {})
         if message_parts:
             message_part = message_parts[0]
@@ -337,7 +336,7 @@ class ConnectorVKTeams(Connector):
                         event_id=event_id
                     )
 
-                return Reply(
+                parsed_event = Reply(
                     text=raw_event['payload']['text'],
                     user=f"@[{user}]",
                     user_id=user,
@@ -347,12 +346,17 @@ class ConnectorVKTeams(Connector):
                     connector=self,
                     raw_event=raw_event,
                 )
+                _LOGGER.debug(
+                    f"Parsed event: {parsed_event}")
+                return parsed_event
 
         if raw_event.get("type") == "newMessage":
             if raw_event.get('payload', {}).get('parts', {}):
                 parsed_event = await self._handle_vkt_events(
                     first_part=raw_event['payload']['parts'][0], raw_event=raw_event,
                     user=user, target=target, event_id=event_id)
+                _LOGGER.debug(
+                    f"Parsed event: {parsed_event}")
             else:
                 return Message(
                     text=raw_event['payload']['text'],
