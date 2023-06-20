@@ -317,10 +317,11 @@ class ConnectorVKTeams(Connector):
                 raw_event=raw_event,
             )
 
-        try:
-            message_part = raw_event.get("payload", {}).get("parts", {})[0]
-            if message_part.get("type") == "reply":
 
+        message_parts = raw_event.get("payload", {}).get("parts", {})
+        if message_parts:
+            message_part = message_parts[0]
+            if message_part.get("type") == "reply":
                 linked_event = None
                 if message_part.get("payload", {}).get("message", {}).get("parts", {}):
                     linked_event = await self._handle_vkt_events(
@@ -346,9 +347,6 @@ class ConnectorVKTeams(Connector):
                     connector=self,
                     raw_event=raw_event,
                 )
-        except (KeyError, AttributeError) as err:
-            _LOGGER.error(
-                f"Couldn't get parts from reply's Payload: {err}")
 
         if raw_event.get("type") == "newMessage":
             if raw_event.get('payload', {}).get('parts', {}):
