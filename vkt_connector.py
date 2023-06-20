@@ -461,6 +461,9 @@ class ConnectorVKTeams(Connector):
         """
         data = aiohttp.FormData()
         data.add_field(
+            "token", str(self.token)
+        )
+        data.add_field(
             "chatId", str(file_event.target), content_type="multipart/form-data"
         )
         data.add_field(
