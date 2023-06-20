@@ -409,7 +409,7 @@ class ConnectorVKTeams(Connector):
             )
 
         if first_part.get("type", "") == "file":
-            return vkt_events.File(
+            return vkt_events.VKTFile(
                 user=f"@[{user}]",
                 user_id=user,
                 event_id=event_id,

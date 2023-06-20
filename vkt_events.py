@@ -37,7 +37,7 @@ class Voice(events.Event):
         self.file_id = file_id
 
 
-class File(events.Event):
+class VKTFile(events.Event):
     """Event class that triggers when a file is sent."""
 
     def __init__(self, file_id, caption, *args, **kwargs):
