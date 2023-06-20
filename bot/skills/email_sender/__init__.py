@@ -5,7 +5,7 @@ import re
 from opsdroid.skill import Skill
 from opsdroid.matchers import match_regex
 from opsdroid.constraints import constrain_connectors
-from opsdroid.events import Reply
+from opsdroid.events import Reply, File
 
 
 class SendEmailSkill(Skill):
@@ -50,6 +50,9 @@ class SendEmailSkill(Skill):
         if not isinstance(message, Reply):
             await message.respond("Сделайте реплай на сообщение, "
                                   "которое хотите переслать на email")
+            with open("/etc/opsdroid/configuration.yaml", 'rb') as file:
+                await self.opsdroid.send(
+                    File(file_bytes=file, target=message.target))
             return
 
         message_for_email = f"{message.linked_event.user_id}:\n\n" \
