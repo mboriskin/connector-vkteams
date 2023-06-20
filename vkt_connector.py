@@ -471,6 +471,8 @@ class ConnectorVKTeams(Connector):
 
         async with aiohttp.ClientSession() as session:
             resp = await session.post(self.build_url("messages/sendFile"), data=data)
+            _LOGGER.debug(
+                f"Response is: {resp}")
             if resp.status == 200:
                 _LOGGER.debug(
                     f"Sent {file_event.name} file successfully.")
