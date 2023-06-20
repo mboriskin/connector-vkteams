@@ -163,7 +163,6 @@ class ConnectorVKTeams(Connector):
                 user = self.get_user(event)
                 target = self.get_target(event)
                 parsed_event = await self.handle_messages(
-                    msg_id=payload['msgId'],
                     user=user,
                     target=target,
                     event_id=event.get("eventId"),
@@ -246,7 +245,7 @@ class ConnectorVKTeams(Connector):
         await self._closing.wait()
         message_getter.cancel()
 
-    async def handle_messages(self, msg_id, user, target, event_id, raw_event):
+    async def handle_messages(self, user, target, event_id, raw_event):
         """
         Create OpsDroid events depending on the type of message that we get from VK Teams.
         It only gives us back the file id, sizes, formats and that's it.
@@ -335,7 +334,6 @@ class ConnectorVKTeams(Connector):
                         target=target,
                         connector=self,
                         raw_event=raw_event,
-                        msg_id=message_part['payload']['message']['msgId'],
                         event_id=event_id
                     )
 
@@ -366,7 +364,6 @@ class ConnectorVKTeams(Connector):
                     target=target,
                     connector=self,
                     raw_event=raw_event,
-                    msg_id=msg_id,
                     event_id=event_id
                 )
             return parsed_event
@@ -433,7 +430,6 @@ class ConnectorVKTeams(Connector):
                     user_id=first_part['payload']['message']['from']['userId'],
                     connector=self,
                     raw_event=first_part,
-                    msg_id=first_part['payload']['message']['msgId'],
                 ),
                 connector=self,
                 raw_event=raw_event
@@ -452,7 +448,6 @@ class ConnectorVKTeams(Connector):
         data["token"] = self.token
         data["chatId"] = message.target
         data["text"] = message.text
-        data["replyMsgId"] = message.reply_msg_id
         resp = await self.session.post(self.build_url("messages/sendText"), data=data)
         if resp.status == 200:
             _LOGGER.debug(
