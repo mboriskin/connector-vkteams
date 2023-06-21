@@ -1,6 +1,7 @@
 """Events for the VK Teams Connector."""
 from opsdroid import events
 
+
 class Sticker(events.Event):
     """Event class that triggers when a sticker is sent."""
 
