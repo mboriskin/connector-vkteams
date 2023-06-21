@@ -240,7 +240,7 @@ class ConnectorVKTeams(Connector):
         And just log a message in debug mode with the payload and return None,
         if it is an event we can't parse.
 
-        message (dict): The payload received from VK Teams
+        raw_event (dict): The payload received from VK Teams
         user (string): The name of the user that sent the message
         user_id (int): The unique user id from the user that send the message
         update_id (int): The unique id for the parsed_event
