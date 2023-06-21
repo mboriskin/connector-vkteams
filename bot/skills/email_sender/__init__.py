@@ -11,6 +11,26 @@ from opsdroid.events import Reply, File
 class SendEmailSkill(Skill):
 
     @match_regex(r'send_email', matching_condition="fullmatch")
+    async def send_email(self, message):
+
+        if not isinstance(message, Reply):
+            await message.respond("Сделайте реплай на сообщение, "
+                                  "которое хотите переслать на email")
+            return
+
+        message_for_email = f"{message.linked_event.user_id}:\n\n" \
+                            f"{message.linked_event.text}\n\n"
+
+        if message_for_email:
+            send_email(to=["your.real.email@mail.ru"],
+                       subject=f"Сообщение из {message.connector.name} (opsdroid)",
+                       text=message_for_email)
+            await message.respond(f"Сообщение переслано на email")
+        else:
+            await message.respond("Сообщение для пересылки не содержит текста")
+
+
+    @match_regex(r'send_email', matching_condition="fullmatch")
     @constrain_connectors(['slack'])
     async def send_email_slack(self, message):
         slack = self.opsdroid.get_connector('slack')
@@ -38,25 +58,6 @@ class SendEmailSkill(Skill):
             send_email(to=["your.real.email@mail.ru"],
                        subject=f"Сообщение из Slack (opsdroid)",
                        text=remove_emoji(message_for_email))
-            await message.respond(f"Сообщение переслано на email")
-        else:
-            await message.respond("Сообщение для пересылки не содержит текста")
-
-    @match_regex(r'send_email', matching_condition="fullmatch")
-    async def send_email_vkteams(self, message):
-
-        if not isinstance(message, Reply):
-            await message.respond("Сделайте реплай на сообщение, "
-                                  "которое хотите переслать на email")
-            return
-
-        message_for_email = f"{message.linked_event.user_id}:\n\n" \
-                             f"{message.linked_event.text}\n\n"
-
-        if message_for_email:
-            send_email(to=["your.real.email@mail.ru"],
-                       subject=f"Сообщение из {message.connector.name} (opsdroid)",
-                       text=message_for_email)
             await message.respond(f"Сообщение переслано на email")
         else:
             await message.respond("Сообщение для пересылки не содержит текста")
