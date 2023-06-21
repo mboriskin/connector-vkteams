@@ -29,6 +29,7 @@ connectors:
     password: "bot_account_password"
     rooms:
       'main': '#my-corporate-bots:matrix.org'
+    nick: "Botty EmailSender"
 
 
 ## Skill modules
