@@ -415,7 +415,7 @@ class ConnectorVKTeams(Connector):
                 target=target,
                 file_id=first_part["payload"]["fileId"],
                 caption=first_part["payload"]["caption"],
-                type=first_part["payload"]["type"],
+                file_type=first_part["payload"]["type"],
                 connector=self,
                 raw_event=raw_event,
             )
