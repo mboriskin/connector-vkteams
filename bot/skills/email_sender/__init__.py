@@ -18,7 +18,7 @@ class SendEmailSkill(Skill):
                                   "которое хотите переслать на email")
             return
 
-        message_for_email = f"{message.linked_event.user_id}:\n\n" \
+        message_for_email = f"\n{message.linked_event.user_id}:\n\n" \
                             f"{message.linked_event.text}\n\n"
 
         if message_for_email:
