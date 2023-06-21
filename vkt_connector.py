@@ -328,14 +328,16 @@ class ConnectorVKTeams(Connector):
             message_part = message_parts[0]
             if message_part.get("type") == "reply":
                 linked_event = None
+                replied_message_author = message_part['payload']['message']['from']['userId']
                 if message_part.get("payload", {}).get("message", {}).get("parts", {}):
                     linked_event = await self._handle_vkt_events(
-                        first_part=message_part['payload']['message']['parts'][0], raw_event=message_part)
+                        first_part=message_part['payload']['message']['parts'][0], raw_event=message_part,
+                        user=replied_message_author)
                 elif message_part.get("payload", {}).get("message", {}):
                     linked_event = Message(
                         text=message_part['payload']['message']['text'],
-                        user=f"@[{user}]",
-                        user_id=user,
+                        user=f"@[{replied_message_author}]",
+                        user_id=replied_message_author,
                         target=target,
                         connector=self,
                         raw_event=raw_event,
