@@ -340,7 +340,7 @@ class ConnectorVKTeams(Connector):
                         user_id=replied_message_author,
                         target=target,
                         connector=self,
-                        raw_event=raw_event,
+                        raw_event=message_part,
                         event_id=event_id
                     )
 
