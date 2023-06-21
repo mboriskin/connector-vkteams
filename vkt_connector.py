@@ -298,6 +298,7 @@ class ConnectorVKTeams(Connector):
 
         if raw_event.get("type") == "editedMessage":
             return EditedMessage(
+                text=raw_event["payload"]["text"],
                 user=f"@[{user}]",
                 user_id=user,
                 event_id=event_id,
