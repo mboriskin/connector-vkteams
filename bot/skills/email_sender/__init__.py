@@ -35,8 +35,7 @@ class SendEmailSkill(Skill):
                              f"\n\n{thread_start['text']}\n\n"
 
         if message_for_email:
-            receiver = "your.real.email@mail.ru"
-            send_email(to=[receiver],
+            send_email(to=["your.real.email@mail.ru"],
                        subject=f"Сообщение из Slack (opsdroid)",
                        text=remove_emoji(message_for_email))
             await message.respond(f"Сообщение переслано на email")
@@ -44,24 +43,19 @@ class SendEmailSkill(Skill):
             await message.respond("Сообщение для пересылки не содержит текста")
 
     @match_regex(r'send_email', matching_condition="fullmatch")
-    @constrain_connectors(['vkteams'])
     async def send_email_vkteams(self, message):
 
         if not isinstance(message, Reply):
             await message.respond("Сделайте реплай на сообщение, "
                                   "которое хотите переслать на email")
-            with open("/etc/opsdroid/configuration.yaml", 'rb') as file:
-                await self.opsdroid.send(
-                    File(file_bytes=file, target=message.target))
             return
 
         message_for_email = f"{message.linked_event.user_id}:\n\n" \
                              f"{message.linked_event.text}\n\n"
 
         if message_for_email:
-            receiver = "your.real.email@mail.ru"
-            send_email(to=[receiver],
-                       subject=f"Сообщение из VK Teams (opsdroid)",
+            send_email(to=["your.real.email@mail.ru"],
+                       subject=f"Сообщение из {message.connector.name} (opsdroid)",
                        text=message_for_email)
             await message.respond(f"Сообщение переслано на email")
         else:

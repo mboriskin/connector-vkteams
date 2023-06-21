@@ -24,6 +24,12 @@ connectors:
     bot-name: "OpsDroid service"
     socket-mode: true
     app-token: "SLACK_APP_TOKEN"
+  matrix:
+    mxid: "@bot_account_username:matrix.org"
+    password: "bot_account_password"
+    rooms:
+      'main': '#my-corporate-bots:matrix.org'
+
 
 ## Skill modules
 skills:
