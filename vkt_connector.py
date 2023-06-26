@@ -22,8 +22,7 @@ from . import vkt_events
 _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = {
     Required("token"): str,
-    "update-interval": float,
-    "default-user": str,
+    Required("base-url"): str,
     "whitelisted-users": list,
 }
 
@@ -43,16 +42,13 @@ class ConnectorVKTeams(Connector):
         self.opsdroid = opsdroid
         self.latest_update = None
         self.listening = True
-        self.base_url = config.get("base-url", None)
-        self.default_user = config.get("default-user", None)
-        self.default_target = self.default_user
         self.whitelisted_users = config.get("whitelisted-users", None)
-        self.update_interval = config.get("update-interval", 1)
         self.session = None
         self._closing = asyncio.Event()
         self.loop = asyncio.get_event_loop()
         try:
             self.token = config["token"]
+            self.base_url = config["base-url"]
         except (KeyError, AttributeError):
             _LOGGER.error(
                 "Unable to login: Access token is missing. VKT connector will be unavailable."
@@ -199,7 +195,6 @@ class ConnectorVKTeams(Connector):
         if self.latest_update is not None:
             data["lastEventId"] = self.latest_update
 
-        await asyncio.sleep(self.update_interval)
         resp = await self.session.get(self.build_url("events/get"), params=data)
 
         if resp.status != 200:
