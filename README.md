@@ -2,6 +2,12 @@
 
 A connector for [opsdroid](https://github.com/opsdroid/opsdroid) to send messages using [VK Teams](https://teams.vk.com/).
 
+## Habr.com
+
+Статья на habr.com: [Практики ChatOps с VK Teams: OpsDroid — коннектор, скиллы, боты](https://habr.com/ru/companies/vk/articles/750208/).
+
+Article on habr.com (russian): [ChatOps with VK Teams](https://habr.com/ru/companies/vk/articles/750208/).
+
 ## Requirements
 
 You need to [register a bot](https://myteam.mail.ru/botapi/) on VK Teams and get an api token for it.
