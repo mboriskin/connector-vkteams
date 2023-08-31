@@ -1,6 +1,6 @@
-# reminder bot with VKT connector
+# email bot with VKT connector
 
-Example reminder bot with VKT connector.
+Example email sender bot with VKT connector.
 
 ## Getting started
 
@@ -23,4 +23,4 @@ docker run --rm -p 8080:8080 opsdroid-demo
 
 ## Project status
 
-demo
+demonstration
